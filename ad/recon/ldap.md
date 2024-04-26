@@ -60,7 +60,7 @@ ldapdomaindump --user 'DOMAIN\USER' --password $PASSWORD --outdir ldapdomaindump
 {% endtab %}
 
 {% tab title="ntlmrelayx" %}
-With [Impacket](https://github.com/SecureAuthCorp/impacket)'s [ntlmrelayx](https://github.com/SecureAuthCorp/impacket/blob/master/examples/ntlmrelayx.py) (Python), it is possible to gather lots of information regarding the domain users and groups, the computers, [ADCS](../movement/ad-cs/), etc. through a [NTLM authentication relayed](broken-reference) within an LDAP session.
+With [Impacket](https://github.com/SecureAuthCorp/impacket)'s [ntlmrelayx](https://github.com/SecureAuthCorp/impacket/blob/master/examples/ntlmrelayx.py) (Python), it is possible to gather lots of information regarding the domain users and groups, the computers, [ADCS](../movement/ad-cs/), etc. through a [NTLM authentication relayed](../movement/ntlm/relay.md) within an LDAP session.
 
 ```bash
 ntlmrelayx -t "ldap://domaincontroller" --dump-adcs --dump-laps --dump-gmsa
@@ -68,7 +68,7 @@ ntlmrelayx -t "ldap://domaincontroller" --dump-adcs --dump-laps --dump-gmsa
 {% endtab %}
 {% endtabs %}
 
-[CrackMapExec](https://github.com/mpgn/CrackMapExec) (Python) also has useful modules that can be used to
+[NetExec](https://github.com/Pennyw0rth/NetExec) (Python) also has useful modules that can be used to
 
 * map information regarding [AD-CS (Active Directory Certificate Services)](../movement/ad-cs/)
 * show subnets listed in AD-SS (Active Directory Sites and Services)
@@ -77,19 +77,19 @@ ntlmrelayx -t "ldap://domaincontroller" --dump-adcs --dump-laps --dump-gmsa
 
 ```bash
 # list PKIs/CAs
-cme ldap "domain_controller" -d "domain" -u "user" -p "password" -M adcs
+nxc ldap "domain_controller" -d "domain" -u "user" -p "password" -M adcs
 
 # list subnets referenced in AD-SS
-cme ldap "domain_controller" -d "domain" -u "user" -p "password" -M subnets
+nxc ldap "domain_controller" -d "domain" -u "user" -p "password" -M subnets
 
 # machine account quota
-cme ldap "domain_controller" -d "domain" -u "user" -p "password" -M maq
+nxc ldap "domain_controller" -d "domain" -u "user" -p "password" -M maq
 
 # users description
-cme ldap "domain_controller" -d "domain" -u "user" -p "password" -M get-desc-users
+nxc ldap "domain_controller" -d "domain" -u "user" -p "password" -M get-desc-users
 ```
 
-The PowerShell equivalent to CrackMapExec's `subnets` modules is the following
+The PowerShell equivalent to netexec's `subnets` modules is the following
 
 ```powershell
 [System.DirectoryServices.ActiveDirectory.Forest]::GetCurrentForest().Sites.Subnets

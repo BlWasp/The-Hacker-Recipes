@@ -14,7 +14,7 @@ In [their research papers](https://posts.specterops.io/certified-pre-owned-d9591
   * related to [access control vulnerabilities](access-controls.md)
   * based on an NTLM relay vulnerability related to the [web endpoints of AD CS](web-endpoints.md)
 * **Domain persistence** (dubbed DPERSIST1 to DPERSIST3)
-  * by [forging certificates with a stolen CA certificates](broken-reference)
+  * by [forging certificates with a stolen CA certificates](certificate-authority.md#stolen-ca)
   * by trusting rogue CA certificates
   * by [maliciously creating vulnerable access controls](../../persistence/access-controls.md)
 
@@ -48,11 +48,11 @@ An initial indicator is the "Cert Publishers" built-in group whose members usual
 Alternatively, information like the PKI's CA and DNS names can be gathered through LDAP.
 
 {% tabs %}
-{% tab title="CrackMapExec" %}
-[CrackMapExec](https://github.com/mpgn/CrackMapExec)'s [adcs](https://github.com/mpgn/CrackMapExec/blob/master/cme/modules/adcs.py) module (Python) can be used to find PKI enrollment services in AD.
+{% tab title="netexec" %}
+ [netexec](https://github.com/Pennyw0rth/NetExec)'s [adcs](https://github.com/Pennyw0rth/NetExec/blob/master/cme/modules/adcs.py) module (Python) can be used to find PKI enrollment services in AD.
 
 ```bash
-crackmapexec ldap 'domaincontroller' -d 'domain' -u 'user' -p 'password' -M adcs
+netexec ldap 'domaincontroller' -d 'domain' -u 'user' -p 'password' -M adcs
 ```
 {% endtab %}
 

